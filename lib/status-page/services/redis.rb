@@ -19,16 +19,18 @@ module StatusPage
 
       def check!
         time = Time.now.to_fs(:db)
+        redis = nil
 
-        redis = ::Redis.new(url: config.url)
-        redis.set(key, time)
-        fetched = redis.get(key)
-
-        raise "different values (now: #{time}, fetched: #{fetched})" if fetched != time
-      rescue Exception => e
-        raise RedisException.new(e.message)
-      ensure
-        redis.close
+        begin
+          redis = ::Redis.new(url: "redis://127.0.0.1:6379/1")
+          redis.set(key, time)
+          fetched = redis.get(key)
+          raise "different values (now: #{time}, fetched: #{fetched})" if fetched != time
+        rescue Exception => e
+          raise RedisException.new(e.message)
+        ensure
+          redis.close if redis
+        end
       end
 
       private
