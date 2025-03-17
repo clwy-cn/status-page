@@ -22,7 +22,7 @@ module StatusPage
         redis = nil
 
         begin
-          redis = ::Redis.new(url: "redis://127.0.0.1:6379/1")
+          redis = ::Redis.new(url: config.url)
           redis.set(key, time)
           fetched = redis.get(key)
           raise "different values (now: #{time}, fetched: #{fetched})" if fetched != time
